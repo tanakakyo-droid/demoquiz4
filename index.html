@@ -16,7 +16,7 @@
     .hidden { display: none; }
     .nav-buttons { margin-top: 20px; display: flex; justify-content: center; gap: 15px; }
     .nav-buttons button { padding: 8px 14px; border-radius: 6px; cursor: pointer; }
-    .feedback { margin-top: 15px; font-weight: bold; color: #333; }
+    .feedback { margin-top: 15px; font-weight: bold; color: #333; text-align: left; }
   </style>
 </head>
 <body>
@@ -83,7 +83,7 @@
           <button onclick="speak('${q.s.replace("______","...")}')">🔊</button></p>
           <div class="choices">
             ${options.map(opt =>
-              `<div><button onclick=\"selectAnswer('${opt.w}')\">${opt.w} (${opt.jp})</button>
+              `<div><button onclick=\"selectAnswer('${opt.w}', '${opt.jp}', '${q.t}', ${JSON.stringify(options).replace(/"/g,'&quot;')})\">${opt.w}</button>
                <button onclick=\"speak('${opt.w}')\">🔊</button></div>`
             ).join("")}
           </div>
@@ -97,20 +97,24 @@
       updateProgress();
     }
 
-    function selectAnswer(choice) {
+    function selectAnswer(choice, choiceJp, sentenceJp, allOptions) {
       const q = WORDS[currentIndex];
       answers[currentIndex] = choice;
       const isCorrect = (choice === q.w);
+
+      let allTranslations = allOptions.map(opt => `${opt.w}: ${opt.jp}`).join('<br>');
+
       const feedbackDiv = document.getElementById("feedback");
       feedbackDiv.classList.remove("hidden");
       feedbackDiv.innerHTML = `${isCorrect ? "✅ 正解!" : "❌ 不正解"}<br>
         正解: ${q.w} (${q.jp})<br>
-        文の和訳: ${q.t}`;
+        文の和訳: ${q.t}<br><br>
+        🔎 他の選択肢の和訳:<br>${allTranslations}`;
 
       setTimeout(() => {
         currentIndex++;
         loadQuestion();
-      }, 2000);
+      }, 3000);
     }
 
     function skipQuestion() {
